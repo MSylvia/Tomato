@@ -140,9 +140,7 @@ namespace Lettuce
 
         public static string GetHexString(uint value, int numDigits)
         {
-            string result = value.ToString("x").ToUpper();
-            while (result.Length < numDigits)
-                result = "0" + result;
+            string result = value.ToString("X4");
             return result;
         }
 

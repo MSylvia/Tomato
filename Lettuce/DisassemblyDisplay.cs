@@ -128,52 +128,58 @@ namespace Lettuce
             int index = 0;
             bool setLast = false, dark = SelectedAddress % 2 == 0;
 
-            for (int y = 0; y < this.Height; y += TextRenderer.MeasureText("0000", font).Height + 2)
+            Size baseFontSize = TextRenderer.MeasureText("0000", font);
+            Size addressFontSize;
+
+            for (int y = 0; y < this.Height; y += baseFontSize.Height + 2)
             {
                 string address = Debugger.GetHexString(Disassembly[index].Address, 4) + ": ";
+                addressFontSize = TextRenderer.MeasureText(address, font);
                 Brush foreground = Brushes.Black;
                 if (dark)
-                    e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 230, 230, 230)), new Rectangle(0, y, this.Width, TextRenderer.MeasureText(address, font).Height + 2));
+                    e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 230, 230, 230)), new Rectangle(0, y, this.Width, addressFontSize.Height + 2));
                 dark = !dark;
 
-                if (CPU.Breakpoints.Where(b => b.Address == Disassembly[index].Address).Count() != 0)
+                int breakPointCount = CPU.Breakpoints.Where(b => b.Address == Disassembly[index].Address).Count();
+
+                if (breakPointCount != 0)
                 {
-                    e.Graphics.FillRectangle(Brushes.DarkRed, new Rectangle(0, y, this.Width, TextRenderer.MeasureText(address, font).Height + 2));
+                    e.Graphics.FillRectangle(Brushes.DarkRed, new Rectangle(0, y, this.Width, addressFontSize.Height + 2));
                     foreground = Brushes.White;
                 }
                 if (Disassembly[index].Address == CPU.PC)
                 {
-                    if (CPU.Breakpoints.Where(b => b.Address == Disassembly[index].Address).Count() != 0)
+                    if (breakPointCount != 0)
                     {
                         if (Disassembly[index].IsLabel)
-                            e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y + 2, this.Width, TextRenderer.MeasureText(address, font).Height));
+                            e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y + 2, this.Width, addressFontSize.Height));
                         else
                         {
                             if (index != 0)
                             {
                                 if (Disassembly[index - 1].IsLabel)
-                                    e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y, this.Width, TextRenderer.MeasureText(address, font).Height));
+                                    e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y, this.Width, addressFontSize.Height));
                                 else
-                                    e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y + 2, this.Width, TextRenderer.MeasureText(address, font).Height - 2));
+                                    e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y + 2, this.Width, addressFontSize.Height - 2));
                             }
                             else
-                                e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y + 2, this.Width, TextRenderer.MeasureText(address, font).Height - 2));
+                                e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y + 2, this.Width, addressFontSize.Height - 2));
                         }
                     }
                     else
-                        e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y, this.Width, TextRenderer.MeasureText(address, font).Height + 2));
+                        e.Graphics.FillRectangle(Brushes.Yellow, new Rectangle(0, y, this.Width, addressFontSize.Height + 2));
                     foreground = Brushes.Black;
                 }
 
                 e.Graphics.DrawString(address, font, Brushes.Gray, 2, y);
 
                 if (!Debugger.KnownCode.ContainsKey(Disassembly[index].Address) || Disassembly[index].IsLabel)
-                    e.Graphics.DrawString(Disassembly[index].Code, font, foreground, 2 + TextRenderer.MeasureText(address, font).Width + 3, y);
+                    e.Graphics.DrawString(Disassembly[index].Code, font, foreground, 2 + addressFontSize.Width + 3, y);
                 else
                     e.Graphics.DrawString(Debugger.KnownCode[Disassembly[index].Address], font, foreground,
-                        2 + TextRenderer.MeasureText(address, font).Width + 3, y);
+                        2 + addressFontSize.Width + 3, y );
 
-                if (y + TextRenderer.MeasureText(address, font).Height > this.Height)
+                if(y + addressFontSize.Height > this.Height)
                 {
                     setLast = true;
                     EndAddress = Disassembly[index].Address;
@@ -187,7 +193,7 @@ namespace Lettuce
             if (IsMouseWithin && !CPU.IsRunning) // TODO: Make this more versatile, probably integrate with organic
             {
                 int x = MouseLocation.X;
-                for (int y = 0; y < this.Height; y += TextRenderer.MeasureText("0000", font).Height + 2)
+                for( int y = 0; y < this.Height; y += baseFontSize.Height + 2 )
                 {
                     if (Disassembly[index].IsLabel || Disassembly[index].Code.StartsWith("DAT"))
                     {
