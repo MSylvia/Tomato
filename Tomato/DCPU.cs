@@ -135,7 +135,8 @@ namespace Tomato
                     // Since FireInterrupt only marks the interrupt as pending execution, the interrupt must be
                     // executed afterwards.
                     FireInterrupt(InterruptQueue.Dequeue());
-                    ExecutePendingInterrupt ();
+                    if (InterruptEvent.Pending)
+                        ExecutePendingInterrupt ();
                 }
                 if (BreakpointHit != null)
                 {
