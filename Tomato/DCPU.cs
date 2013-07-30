@@ -8,13 +8,13 @@ namespace Tomato
 {
     public class DCPU
     {
-		private struct Interruption {
-			public bool   Pending;    // Allows perpetual reuse of single instance, deletion not required.
-			public ushort Message;
-			// Ascertains that interrupts arriving during the execution of an operation changing IA will behave as if
-			// they had arrived prior to that change taking effect.
-			public ushort Handler;
-		};
+        private struct Interruption {
+            public bool   Pending;    // Allows perpetual reuse of single instance, deletion not required.
+            public ushort Message;
+            // Ascertains that interrupts arriving during the execution of an operation changing IA will behave as if
+            // they had arrived prior to that change taking effect.
+            public ushort Handler;
+        };
 
         static DCPU()
         {
@@ -28,7 +28,7 @@ namespace Tomato
             InterruptQueue = new Queue<ushort>();
             Memory = new ushort[0x10000];
             InterruptEvent.Pending = InterruptQueueEnabled = IsOnFire = false;
-			InterruptEvent.Handler = InterruptEvent.Message = 0x0000;
+            InterruptEvent.Handler = InterruptEvent.Message = 0x0000;
             IsRunning = true;
             TotalCycles = 0;
         }
@@ -94,7 +94,7 @@ namespace Tomato
                 }
             }
         }
-		private Interruption InterruptEvent = new Interruption();
+        private Interruption InterruptEvent = new Interruption();
         private object LockObject = new object();
 
         public ushort InstructionLength(ushort address)
@@ -127,16 +127,16 @@ namespace Tomato
             {
                 if (IsOnFire)
                     Memory[Random.Next(0xFFFF)] = (ushort)Random.Next(0xFFFF);
-				// Pending immediate interrupts always take precedence over queued interrupts and preempt dequeueing.
-				if (InterruptEvent.Pending)
-					ExecutePendingInterrupt ();
+                // Pending immediate interrupts always take precedence over queued interrupts and preempt dequeueing.
+                if (InterruptEvent.Pending)
+                    ExecutePendingInterrupt ();
                 else if (!InterruptQueueEnabled && InterruptQueue.Count > 0)
-				{
-					// Since FireInterrupt only marks the interrupt as pending execution, the interrupt must be
-					// executed afterwards.
+                {
+                    // Since FireInterrupt only marks the interrupt as pending execution, the interrupt must be
+                    // executed afterwards.
                     FireInterrupt(InterruptQueue.Dequeue());
-					ExecutePendingInterrupt ();
-				}
+                    ExecutePendingInterrupt ();
+                }
                 if (BreakpointHit != null)
                 {
                     foreach (var breakpoint in Breakpoints)
@@ -438,14 +438,14 @@ namespace Tomato
             } while (opcode >= 0x10 && opcode <= 0x17);
         }
 
-		private void ExecutePendingInterrupt()
-		{
-			Memory [--SP] = PC;
-			Memory [--SP] = A;
-			PC = InterruptEvent.Handler;
-			A = InterruptEvent.Message;
-			InterruptEvent.Pending = false;
-		}
+        private void ExecutePendingInterrupt()
+        {
+            Memory [--SP] = PC;
+            Memory [--SP] = A;
+            PC = InterruptEvent.Handler;
+            A = InterruptEvent.Message;
+            InterruptEvent.Pending = false;
+        }
 
         public void FireInterrupt(ushort Message)
         {
@@ -459,12 +459,12 @@ namespace Tomato
             {
                 if (IA != 0)
                 {
-					// This will cause the CPU to switch to the interrupt handler at the beginning of the next execution
-					// cycle. The interrupt queue must be enabled immediately to enqueue simultaneously occurring
-					// interrupts.
-					InterruptEvent.Pending = true;
-					InterruptEvent.Handler = IA;
-					InterruptEvent.Message = Message;
+                    // This will cause the CPU to switch to the interrupt handler at the beginning of the next execution
+                    // cycle. The interrupt queue must be enabled immediately to enqueue simultaneously occurring
+                    // interrupts.
+                    InterruptEvent.Pending = true;
+                    InterruptEvent.Handler = IA;
+                    InterruptEvent.Message = Message;
                     InterruptQueueEnabled = true;
                 }
             }
@@ -668,8 +668,8 @@ namespace Tomato
             InterruptQueueEnabled = IsOnFire = false;
             InterruptQueue.Clear();
 
-			InterruptEvent.Pending = false;
-			InterruptEvent.Handler = InterruptEvent.Message = 0x0000;
+            InterruptEvent.Pending = false;
+            InterruptEvent.Handler = InterruptEvent.Message = 0x0000;
 
             foreach (var device in Devices)
                 device.Reset();
